@@ -1,0 +1,13 @@
+{% layout none %}
+
+{% comment %}<script>{% endcomment %}
+
+  {% assign ss_tag = 'general.ss_tag' | t %}
+  {% assign nss_tag = 'general.nss_tag' | t %}
+
+  {% unless customer.tags contains nss_tag %}
+	location.assign("/cart");
+  {% endunless %}
+
+
+{% comment %}</script>{% endcomment %}

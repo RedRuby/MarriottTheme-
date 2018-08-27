@@ -1,0 +1,93 @@
+{% layout none %}
+
+{% if cart.item_count > 0 %}
+	<br>
+    <table class="responsive-table cart-table">
+      <thead class="cart__row visually-hidden">
+        <th colspan="2">{{ 'cart.label.product' | t }}</th>
+        <th>{{ 'cart.label.quantity' | t }}</th>
+        <th>{{ 'cart.label.total' | t }}</th>
+      </thead>
+      <tbody id="CartProducts">
+        {% for item in cart.items %}
+          <tr class="cart__row responsive-table__row" {% unless forloop.last %}style="border:none;"{% endunless %}>
+            <td class="cart__cell--image text-center">
+              <a href="{{ item.url | within: collections.all }}" class="cart__image">
+                <img src="{{ item | img_url: 'medium' }}" alt="{{ item.title | escape }}">
+              </a>
+            </td>
+            <td class="cart__item-info">
+              <a href="{{ item.url }}" class="h5">
+                {{ item.product.title }}
+              </a>
+              {% unless item.variant.title contains 'Default' %}
+                <p>{{ item.variant.title }}</p>
+              {% endunless %}
+
+              {% if settings.product_vendor_enable %}
+                <p>{{ item.vendor }}</p>
+              {% endif %}
+
+              {% comment %}
+                Optional, loop through custom product line items if available
+
+                Line item properties come in as having two parts. The first part will be passed with the default form,
+                but p.last is the actual custom property and may be blank. If it is, don't show it.
+
+                For more info on line item properties, visit:
+                  - http://docs.shopify.com/support/your-store/products/how-do-I-collect-additional-information-on-the-product-page-Like-for-a-monogram-engraving-or-customization
+              {% endcomment %}
+              {% assign property_size = item.properties | size %}
+              {% if property_size > 0 %}
+                {% for p in item.properties %}
+                    {% unless p.last == blank %}
+                        <br />Uploaded File:
+                        {% if p.last contains '//uploadery.s3' %}
+                            <a target="_blank" href="{{ p.last }}">Preview your file</a>
+                        {% else %}
+                            {{ p.last }}
+                        {% endif %}
+                    {% endunless %} 
+                {% endfor %}
+              {% endif %}
+            </td>
+            <td class="cart__cell--quantity">
+              &times; {{ item.quantity }}
+            </td>
+            <td class="cart__cell--total">
+              <span class="cart__item-total">
+                {{ item.line_price | money }}
+              </span>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td class="small-half small--text-left" colspan="3">Subtotal</td>
+          <td class="text-right small-half">{{ cart.total_price | money }}</td>
+        </tr>
+        <tr>
+          <td class="small-half small--text-left" colspan="3">Shipping + Handling Fee</td>
+          <td class="text-right small-half cart_ship"><input type="hidden" name="billing[ship_price]" required><i class="fa fa-refresh fa-spin fa-sm"></i></td>
+        </tr>
+        <tr>
+          <td class="small-half small--text-left" colspan="3">Total</td>
+          <td class="text-right small-half cart_total"><i class="fa fa-refresh fa-spin fa-sm"></i></td>
+        </tr>
+      </tfoot>
+    </table>
+	<script>
+      window.cart_subtotal = {{ cart.total_price | money_without_currency }};
+      window.cart_hash = {{ cart | json }};
+    </script>
+    <style>
+      @media (max-width: 749px){
+        .small-half{ width: 50% !important; float: left !important; }
+      }
+    </style>
+{% else %}
+  <script>
+    location.reload();
+  </script>
+{% endif %}

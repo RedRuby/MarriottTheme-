@@ -1,0 +1,96 @@
+<div class="grid">
+    <div class="grid__item medium-up--one-half medium-up--push-one-quarter">
+      <div class="content-block text-center">
+ 
+  <div class="form-vertical register-page text-center">
+    <h1>REGISTER FOR AN ACCOUNT</h1>
+         <p class="bottom-padding">First, let’s set up your account. This helps us help you, maintaining an order history, focusing your product offerings, and enabling quick reorders.
+		</p>
+		{% form 'contact' %}
+    
+      {% if form.posted_successfully? %}
+    <div class="successForm feedback">
+      <p width="80%; margin: 10px auto;" ><strong> Thank you, your request has been received and will be processed. You will receive a notification by email when your account is successfully set up.</strong></p>
+    </div>
+  {% endif %}
+
+  {% if form.errors %}
+  <div class="errorForm feedback">
+    <!-- {{ form.errors.size }} or {{ form.errors | size }} -->
+    <p>Your contact form has {{ form.errors | size | pluralize: 'an error', 'a few errors' }}. To submit your form, make the following changes and try again:</p>
+    {% for field in form.errors %}
+      <p>The {{ field | capitalize | replace: 'Body', 'Message' }} field {{ form.errors.messages[field] }}.</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+<!-- 		  <input type="text" placeholder="Starlink Number" name="contact[starlink]"> -->
+     	  <input type="email" required id="contactFormEmail" name="contact[email]" placeholder="Email Address">
+    	  <input type="text" required id="name" name="contact[firstname]" placeholder="First Name">
+    	  <input type="text" required id="name" name="contact[lastname]" placeholder="Last Name">
+		  <input type="phone" required id="Phone Number" name="contact[phone]" placeholder="Phone Number">
+  
+    <select name="contact[department]" class="input-full" style=" color: rgb(102, 102, 102);">
+              <option class="input-full" value=" ">Department</option>
+              <option value="Housekeeping">Housekeeping</option>
+              <option value="Marketing & Sales">Marketing & Sales</option>
+              <option value="Events">Events</option>
+              <option value="Human Resources">Human Resources</option>
+              <option value="Food & Beverage">Food & Beverage</option>
+              <option value="Corporate">Corporate</option>
+           </select>
+             
+    
+          <input type="text" required id="shiptoaddressline1" name="contact[shiptoline1]" placeholder="Ship to Street Address">
+    	  <input type="text" id="shiptoaddressline2" name="contact[shiptoline2]" placeholder="Ship to Street Address Line 2 Optional">
+          <input type="text" required id="shiptoaddressline3" name="contact[shiptoline3]" placeholder="Ship to Address: City  State/Province   Zip/Postal Code">
+    
+          <input type="text" required id="billtoaddressline1" name="contact[billto1]" placeholder="Bill to Street Address">
+    	  <input type="text" name="contact[billtoline2]" placeholder="Bill to Street Address Line2">
+          <input type="text" required id="billtoaddressline3" name="contact[billtoline3]" placeholder="Bill to Address: City  State/Province   Zip/Postal Code">          
+    
+    <input type="text" required id="name" name="contact[gmfirstname]" placeholder="General Manager First Name">
+     <input type="text" required id="name" name="contact[gmlastname]" placeholder="General Manager Last Name">
+ 		  <input type="email" required id="generalmanagercontactFormEmail" name="contact[gmemail]" placeholder="General Manager Email Address">   
+  		  
+    <input type="text" required id="apcontactname" name="contact[apname]" placeholder="Accounts Payable First Name">
+    	  <input type="text" required id="apcontactlastname" name="contact[aplastname]" placeholder="Accounts Payable Last Name">
+ 		  <input type="email" required id="apcontactFormEmail" name="contact[apemail]" placeholder="Accounts Payable Email Address">   
+          <input type="phone" required id="apphone" name="contact[apphone]"placeholder="Accounts Payable Phone Number"> 
+       
+              
+    	  <input type="text" placeholder="For Canadian Accounts: Please enter Broker Name " name="contact[brokername]" />
+          <input type="phone" placeholder="For Canadian Accounts: Please enter Broker Phone Number" name="contact[brokerphone]">
+          <input type="text" placeholder="For Canadian Accounts: Please enter Broker #" name="contact[brokernumber]"  />
+                  
+    
+     
+          <p>
+            <input type="submit" class="submit-btn" id="no-background-color" value="Submit" class="btn ">
+          </p>
+    	
+    <p><a href="{{shop.url}}">Cancel</a></p>
+        
+
+        {% endform %}
+      </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function strip(html){
+       var doc = new DOMParser().parseFromString(html, 'text/html');
+       return doc.body.textContent || "";
+    }
+    
+    $('input[name^="contact["]').on("change", function(){
+    	this.value = strip(this.value);
+    });
+  </script>
+
+
+
+
+
+

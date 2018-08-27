@@ -1,0 +1,396 @@
+{% if settings.hero_enable %}
+  {% comment %}
+    Close .page-width wrapper div
+  {% endcomment %}
+  </div>
+  <div class="hero-wrapper">
+    <button type="button" class="visually-hidden hero__pause" aria-live="polite">
+      <span class="hero__pause-stop">
+        {% include 'icon', name: 'pause' %}
+        <span class="icon__fallback-text">{{ 'homepage.hero.pause_slideshow' | t }}</span>
+      </span>
+      <span class="hero__pause-play">
+        {% include 'icon', name: 'play' %}
+        <span class="icon__fallback-text">{{ 'homepage.hero.play_slideshow' | t }}</span>
+      </span>
+    </button>
+    <div class="hero" id="Hero" data-autoplay="true" data-speed="7000">
+      {% for i in (1..6) %}
+        {% capture slide %}hero_slide_{{ i }}_enable{% endcapture %}
+        {% capture slide_img %}hero_slide_{{ i }}.jpg{% endcapture %}
+        {% capture slide_heading %}hero_slide_{{ i }}_heading{% endcapture %}
+        {% capture slide_cta %}hero_slide_{{ i }}_cta{% endcapture %}
+        {% capture slide_link %}hero_slide_{{ i }}_link{% endcapture %}
+        {% if settings[slide] %}
+          <div class="hero__slide">
+
+            <style>
+              @media screen and (max-width: 600px) {
+                .hero__image--{{ i }} {
+                  background-image: url('{{ slide_img | asset_img_url: 'grande' }}');
+                }
+              }
+              @media screen and (min-width: 601px) and (max-width: 1024px) {
+                .hero__image--{{ i }} {
+                  background-image: url('{{ slide_img | asset_img_url: '1024x1024' }}');
+                }
+              }
+              @media screen and (min-width: 1025px) {
+                .hero__image--{{ i }} {
+                  background-image: url('{{ slide_img | asset_img_url: '2048x2048' }}');
+                }
+              }
+            </style>
+
+            <div class="hero__image hero__image--{{ i }}" data-image="{{ slide_img | asset_url }}"></div>
+            <div class="hero__text-wrap">
+              <div class="page-width">
+                <div class="hero__text-content">
+                  {% unless settings[slide_heading] == blank %}
+                    <div class="hero__title-wrap text-center">
+                      <p class="hero__title{% if settings[slide_link] != blank %} hero__title--has-link{% endif %}">
+                        
+                          <a href="javascript:scroll2Cat1();" class="hero__link" style="outline:none !important;">
+                       
+                            Custom Merchandise for Your Brand’s Unique Needs
+
+                          </a>
+                        
+                      </p>
+                    </div>
+                  {% endunless %}
+                  <div class="hero__arrows small--hide" aria-controls="Hero">
+                    <a href="#" class="hero__arrow hero__arrow--prev">
+                      {% include 'icon', name: 'arrow-left' %}
+                      <span class="icon__fallback-text">{{ 'homepage.hero.previous_slide' | t }}</span>
+                    </a>
+                    <a href="#" class="hero__arrow hero__arrow--next">
+                      {% include 'icon', name: 'arrow-right' %}
+                      <span class="icon__fallback-text">{{ 'homepage.hero.next_slide' | t }}</span>
+                    </a>
+                  </div>
+
+                  {% unless settings[slide_cta] == blank %}
+                    {% if settings[slide_link] != blank %}
+                      <a href="{{ settings[slide_link] }}" class="hero__subtitle hero__link">
+                        {{ settings[slide_cta] }}
+                      </a>
+                    {% else %}
+                      <span class="hero__subtitle">
+                        {{ settings[slide_cta] }}
+                      </span>
+                    {% endif %}
+                  {% endunless %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% comment %}
+    Reopen .page-width div
+  {% endcomment %}
+  <div class="page-width">
+{% endif %}
+
+{% if settings.featured_collections_enable %}
+  <div class="index-section small--hide">
+    
+    {% assign featured_collection_count = 0 %}
+    {% for i in (1..6) %}
+      {% assign featured_collection_setting = "home_featured_collections_" | append: i %}
+      {% if settings[featured_collection_setting] != blank %}
+        {% assign featured_collection_count = featured_collection_count | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+
+    {% assign featured_collection_setting = "home_featured_collections_" | append: i %}
+
+    {% case featured_collection_count %}
+      {% when 1 %}
+        {% assign featured_collection_grid_width = 'one-half' %}
+        {% assign featured_collection_img_sizes = '50vw 50vw 569px' %}
+      {% when 2 %}
+        {% assign featured_collection_grid_width = 'one-half' %}
+        {% assign featured_collection_img_sizes = '50vw 50vw 569px' %}
+      {% when 3 %}
+        {% assign featured_collection_grid_width = 'one-third' %}
+        {% assign featured_collection_img_sizes = '33vw 33vw 379px' %}
+      {% when 4 %}
+        {% assign featured_collection_grid_width = 'one-quarter' %}
+        {% assign featured_collection_img_sizes = '25vw 25vw 284px' %}
+      {% when 5 %}
+        {% assign featured_collection_grid_width = 'one-third' %}
+        {% assign featured_collection_img_sizes = '33vw 33vw 379px' %}
+      {% when 6 %}
+        {% assign featured_collection_grid_width = 'one-third' %}
+        {% assign featured_collection_img_sizes = '33vw 33vw 379px' %}
+    {% endcase %}
+
+    {% if featured_collection_count > 0 %}
+      <div class="grid grid--no-gutters" id="logo-grid-contain" style="background:white">        
+          
+            <div class= "page-width text-center" style="padding:0px;">
+              	<br>
+          		<h2 style="color:#146db5"> Select Your Brand </h2>
+              	{% comment %}<img src="{{ 'logo-grid.PNG' | file_url }}" style="width:100%; height:auto;">{% endcomment %}
+        	</div>
+            
+          {% comment %}{% endcomment %}
+          <div  id="logo-grid1" class="grid__item one-whole hide1" style="position:relative; background1:url('{{ "logo-grid-lay.png" | file_url }}') center center no-repeat; background-size:cover;">
+          <img src="{{ "logo-grid-lay.png" | file_url }}" style="width:100%; height:auto;position:absolute;z-index:1;">
+           <br><br><br> 
+          <div class="hide1 flex-grid-logo page-width" style="display1:flex;">
+            {% comment %}
+            <a href="/collections/the-ritz-carltonfilter-os-e">{{ 'Marriott_PropertyLogo-1.png' | file_url | img_tag }}</a>
+            <a href="/collections/bvlgarifilter-os-e">{{ 'Marriott_PropertyLogo-2.png' | file_url | img_tag }}</a>
+            <a href="/collections/editionfilter-os-e">{{ 'Marriott_PropertyLogo-3.png' | file_url | img_tag }}</a>
+            <a href="/collections/jw-marriottfilter-os-e">{{ 'Marriott_PropertyLogo-4.png' | file_url | img_tag }}</a>
+            <a href="/collections/autograph-collectionfilter-os-e">{{ 'Marriott_PropertyLogo-5.png' | file_url | img_tag }}</a>
+            <a href="/collections/renaissancefilter-os-e">{{ 'Marriott_PropertyLogo-6.png' | file_url | img_tag }}</a>
+            <a href="/collections/marriottfilter-os-e">{{ 'Marriott_PropertyLogo-7.png' | file_url | img_tag }}</a>
+            <a href="/collections/deltafilter-os-e">{{ 'Marriott_PropertyLogo-8.png' | file_url | img_tag }}</a>
+            <a href="/collections/marriott-executive-appartmentsfilter-os-e">{{ 'Marriott_PropertyLogo-9.png' | file_url | img_tag }}</a>
+            {% endcomment %}
+            {% assign collect_list_1 = "the-ritz-carlton,bvlgari,edition,jw-marriott,autograph-collection,renaissance,marriott,delta,marriott-executive-appartments" | split:"," %}
+            {% for coll in collect_list_1 %}
+            	{% assign collection = collections[coll] %}
+            	<a href="{{ collection.url }}">
+                  <img src="{{ collection.image | img_url: '65x35' }}" style1="{% if collection.image.width > collection.image.height %}width:100%; height:auto;{% else %}height:100%; width:auto;{% endif %}">
+            </a><script>console.log('{{ collection.title }}: {{ collection.image.aspect_ratio }}');</script>
+            {% endfor %}
+          </div>
+          <div class="hide1 flex-grid-logo page-width" style="display1:flex;">  
+            {% comment %}
+            <a href="/collections/marriott-vacation-clubfilter-os-e">{{ 'Marriott_PropertyLogo-10.png' | file_url | img_tag }}</a>
+            <a href="/collections/gaylordfilter-os-e">{{ 'Marriott_PropertyLogo-11.png' | file_url | img_tag }}</a>
+            <a href="/collections/ac-hotels-marriottfilter-os-e">{{ 'Marriott_PropertyLogo-12.png' | file_url | img_tag }}</a>
+            <a href="/collections/courtyard-marriottfilter-os-e">{{ 'Marriott_PropertyLogo-13.png' | file_url | img_tag }}</a>
+            <a href="/collections/residence-inn-marriottfilter-os-e">{{ 'Marriott_PropertyLogo-14.png' | file_url | img_tag }}</a>
+            <a href="/collections/springhill-suites-marriottfilter-os-e">{{ 'Marriott_PropertyLogo-15.png' | file_url | img_tag }}</a>
+            <a href="/collections/fairfield-inn-suites-marriottfilter-os-e">{{ 'Marriott_PropertyLogo-16.png' | file_url | img_tag }}</a>
+            <a href="/collections/towneplace-suites-marriottfilter-os-e">{{ 'Marriott_PropertyLogo-17.png' | file_url | img_tag }}</a>
+            <a href="/collections/protea-hotels-marriottfilter-os-e">{{ 'Marriott_PropertyLogo-18.png' | file_url | img_tag }}</a>
+            <a href="/collections/moxy-hotelsfilter-os-e">{{ 'Marriott_PropertyLogo-19.png' | file_url | img_tag }}</a>
+            {% endcomment %}
+            {% assign collect_list_1 = "marriott-vacation-club,gaylord,ac-hotels-marriott,courtyard-marriott,residence-inn-marriott,springhill-suites-marriott,fairfield-inn-suites-marriott,towneplace-suites-marriott,protea-hotels-marriott,moxy-hotels" | split:"," %}
+            {% for coll in collect_list_1 %}
+            	{% assign collection = collections[coll] %}
+            	<a href="{{ collection.url }}">
+                  <img src="{{ collection.image | img_url: '65x35' }}" style1="{% if collection.image.width > collection.image.height %}width:100%; height:auto;{% else %}height:100%; width:auto;{% endif %}">
+                </a>
+            {% endfor %}
+          </div>
+<!--            <hr> -->
+          <div class="hide1 flex-grid-logo page-width" style="margin:20px 0; display1:flex;">
+            {% comment %}
+            <a href="/collections/st-regisfilter-os-e">{{ 'St_Regis.png' | asset_url | img_tag }}</a>
+<!--             <a href="/collections/spgfilter-os-e">{{ 'spg.png' | asset_url | img_tag }}</a> -->
+            <a href="/collections/the-luxury-collectionfilter-os-e">{{ 'Luxury.png' | asset_url | img_tag }}</a>
+            <a href="/collections/w-hotelsfilter-os-e">{{ 'W_Hotles.png' | asset_url | img_tag }}</a>
+            <a href="/collections/westinfilter-os-e">{{ 'westin.png' | asset_url | img_tag }}</a>
+            <a href="/collections/sheratonfilter-os-e">{{ 'Sheraton.png' | asset_url | img_tag }}</a>
+            <a href="/collections/le-meridienfilter-os-e" class="vat">{{ 'Le_Meridien.png' | asset_url | img_tag }}</a>
+            <a href="/collections/tributefilter-os-e" class="vab">{{ 'Tribute.png' | asset_url | img_tag }}</a>
+            <a href="/collections/design-hotelsfilter-os-e">{{ 'Design_Hotels.png' | asset_url | img_tag }}</a>
+            <a href="/collections/aloftfilter-os-e">{{ 'Aloft.png' | asset_url | img_tag }}</a>
+            <a href="/collections/four-pointsfilter-os-e" class="vam">{{ 'Four_Points_by_Sheraton.png' | asset_url | img_tag }}</a>
+            <a href="/collections/elementfilter-os-e">{{ 'Element.png' | asset_url | img_tag }}</a>
+            {% endcomment %}
+            <br>
+            {% assign collect_list_1 = "st-regis,the-luxury-collection,w-hotels,westin,sheraton,le-meridien,tribute,design-hotels,aloft,four-points,element" | split:"," %}
+            {% for coll in collect_list_1 %}
+            	{% assign collection = collections[coll] %}
+            	<a href="{{ collection.url }}">
+                  <img src="{{ collection.image | img_url: '65x35' }}" style1="{% if collection.image.width > collection.image.height %}width:100%; height:auto;{% else %}height:100%; width:auto;{% endif %}">
+                </a>
+            {% endfor %}
+          </div>
+        </div>
+          </div>
+       <div id="featured-shop-grid" class="grid grid--no-gutters" style="background-color:white; display:none; padding:0 0px;">
+         <a name="featured-shop"></a>
+         <div class= "page-width text-center">
+        	<br><br>
+            <h2 style="color:#146db5"> Select a category </h2>
+         </div>
+         
+         <div class="page-width">
+         {% for i in (1..6) %}
+          {% assign featured_collection_setting = "home_featured_collections_" | append: i %}
+          {% if settings[featured_collection_setting] != blank %}
+            {% assign featured_collection = collections[settings[featured_collection_setting]] %}
+            {% if featured_collection.image %}
+              {% assign featured_card_image_src = featured_collection.image.src  %}
+            {% else %}
+              {% assign featured_card_image_src = featured_collection.products.first.featured_image %}
+            {% endif %}
+            {% if featured_collection_count == 5 and i > 3 %}
+              {% assign featured_collection_grid_width = 'one-half' %}
+            {% endif %}
+        	
+            <div class="grid__item {{ featured_collection_grid_width }} lp-feature" style="padding:15px; cursor:pointer;" href="#filter-{{ featured_collection.handle }}">
+               
+<!--               <div class="lp-card"  style="background-image: url(//placehold.it/800x800)"> -->
+              <div class="lp-card"  style="background-image: url({{ featured_collection.image.src  | img_url: 'large' }})">
+                <div class="lp-card-content hide">
+                  <h3>Select your brand:</h3>
+                  <ul>
+                    <li><a href="/collections/st-regis#filter-{{ featured_collection.handle }}">St. Regis</a></li>
+                    <li><a href="/collections/le-meridien#filter-{{ featured_collection.handle }}">Le Meridien</a></li>
+                    <li><a href="/collections/the-luxury-collection#filter-{{ featured_collection.handle }}">The Luxury Collection</a></li>
+                    <li><a href="/collections/tribute#filter-{{ featured_collection.handle }}">Tribute</a></li>
+                    <li><a href="/collections/w-hotels#filter-{{ featured_collection.handle }}">W Hotels</a></li>
+                    <li><a href="/collections/four-points#filter-{{ featured_collection.handle }}">Four Points</a></li>
+                    <li><a href="/collections/design-hotels#filter-{{ featured_collection.handle }}">Design Hotels</a></li>
+                    <li><a href="/collections/aloft#filter-{{ featured_collection.handle }}">Aloft</a></li>
+                    <li><a href="/collections/sheraton#filter-{{ featured_collection.handle }}">Sheraton</a></li>
+                    <li><a href="/collections/elements#filter-{{ featured_collection.handle }}">Element</a></li>
+                    <li><a href="/collections/westin#filter-{{ featured_collection.handle }}">Westin</a></li>
+                    <li><a href="/collections/spg#filter-{{ featured_collection.handle }}">SPG</a></li>
+
+                  </ul>
+                </div>
+              </div>
+              <div class="featured-card__header">
+                <p class="h1 featured-card__title">{{ featured_collection.title }}</p>
+              </div>
+              
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+      </div>
+    {% else %}
+      {% unless onboardingLoaded %}
+        {% comment %}
+          Only load onboarding styles if they have not already been loaded.
+        {% endcomment %}
+        {{ 'theme-onboarding.css' | global_asset_url | stylesheet_tag }}
+        {% assign onboardingLoaded = true %}
+      {% endunless %}
+      <div class="helper-section">
+        <div class="helper-note">
+          <span class="helper-icon"></span>
+          <h3>{{ 'homepage.onboarding.modal_title' | t }}</h3>
+          <p>{{ 'homepage.onboarding.no_collections_html' | t }}</p>
+          <p><a href="/admin/collections" class="admin-btn-primary">{{ 'homepage.onboarding.add_collection' | t }}</a></p>
+        </div>
+        <div class="grid grid--no-gutters helper-content">
+          
+          {% for i in (1..3) %}
+            {% capture imageUrl %}//cdn.shopify.com/s/images/themes/product-{{ i }}.png{% endcapture %}
+          <p>grid__item one-third</p>
+          <div>hello</div>
+            <div class="grid__item one-third">
+              <a href="/collections" class="featured-card{% if settings.home_featured_cover_image_enable %} featured-card--cover{% endif %}"{% if settings.home_featured_cover_image_enable %} style="background-image: url('{{ imageUrl }}')"{% endif %}>
+                <div class="featured-card__header">
+                  <p class="h1 featured-card__title">{{ 'homepage.onboarding.collection_title' | t }}</p>
+                  
+                </div>
+                {% unless settings.home_featured_cover_image_enable %}
+                  <div class="featured-card__image-wrapper">
+                    <img src="{{ imageUrl }}" alt="{{ featured_collection.image.alt | escape }}" class="featured-card__image">
+                  </div>
+                {% endunless %}
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+
+<div class="medium-up--hide">
+  <ul class="drawer__nav drawer__nav--template-index">
+    {% assign meganav_index = 0 %}
+    {% for link in linklists.main-menu.links %}
+      {%- comment %}<locksmith:27a4>{% endcomment -%}
+        {%- include 'locksmith-variables', locksmith_scope: 'subject', locksmith_subject: link, locksmith_subject_parent: linklists.main-menu %}{% if locksmith_transparent %}{% else %}{% continue %}{% endif -%}
+      {%- comment %}</locksmith:27a4>{% endcomment -%}
+      {% assign child_list_handle = link.title | handleize %}
+      {% assign nav_parent_has_products = false %}
+      {% assign nav_parent_product_count = link.object.products_count %}
+      {% unless nav_parent_product_count == blank or nav_parent_product_count == 0 %}
+        {% assign nav_parent_has_products = true %}
+      {% endunless %}
+      {% if link.url == '/' %}
+        {% continue %}
+      {% endif %}
+      {% assign meganav_index = meganav_index | plus: 1 %}
+      {% if linklists[child_list_handle].links != blank %}
+        <li class="drawer__nav-item">
+          <div class="drawer__nav-has-sublist">
+            <a href="{{ link.url }}" class="drawer__nav-link" id="DrawerLabel-{{ child_list_handle }}">{{ link.title }}</a>
+            {% if nav_parent_has_products %}
+              <div class="drawer__nav-toggle">
+                <button type="button" data-aria-controls="IndexLinklist-{{ child_list_handle }}" class="text-link drawer__nav-toggle-btn index__meganav-toggle{% if meganav_index == 1 %} meganav--active{% endif %}" {% if meganav_index == 1 %} aria-expanded="true"{% endif %}>
+                  <span class="drawer__nav-toggle--open">
+                    {% include 'icon', name: 'plus' %}
+                    <span class="icon__fallback-text">{{ 'general.drawers.expand_sub_menu' | t }}</span>
+                  </span>
+                  <span class="drawer__nav-toggle--close">
+                    {% include 'icon', name: 'minus' %}
+                    <span class="icon__fallback-text">{{ 'general.drawers.collapse_sub_menu' | t }}</span>
+                  </span>
+                </button>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="meganav meganav--index {% if meganav_index == 1 %} meganav--active{% endif %}" id="IndexLinklist-{{ child_list_handle }}" aria-labelledby="DrawerLabel-{{ child_list_handle }}" role="navigation">
+            <ul class="meganav__nav">
+              {% include 'meganav', fixed_width: true, show_title: false, show_links: true, show_products: true %}
+            </ul>
+          </div>
+        </li>
+      {% else %}
+        <li class="drawer__nav-item">
+          <a href="{{ link.url }}" class="drawer__nav-link">{{ link.title }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</div>
+
+{% if settings.home_page_content != blank %}
+  <div class="grid index-section index-section--page-content text-center">
+    <div class="grid__item medium-up--three-fifths medium-up--push-one-fifth">
+      <div class="rte">
+        {{ pages[settings.home_page_content].content }}
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<script>
+  var cat_1,cat2;
+  $(document).ready(function(){
+    $("#logo-grid1 a").on('click',function(e){
+    	e.preventDefault();
+      	cat_1 = $(this).attr('href');
+      	$("#logo-grid1 a img").css('opacity','0.3');
+      	$(this).find('img').css('opacity','1');
+      	$("#featured-shop-grid").show();
+        $('body, html').delay(600).animate({scrollTop: $("#featured-shop-grid").offset().top-80});
+      	return false;
+    });
+    $("#featured-shop-grid .lp-feature").on('click',function(e){
+    	e.preventDefault();
+      	cat_2 = $(this).attr('href');
+      	if(cat_1)
+          location.assign(cat_1+cat_2);
+      	else
+          scroll2Cat1();
+      	return false;
+    });
+  });
+  
+  function scroll2Cat1(){
+  	$('body, html').delay(100).animate({scrollTop: $("#logo-grid1").offset().top-300});
+  }
+</script>

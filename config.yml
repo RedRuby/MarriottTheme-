@@ -1,0 +1,20 @@
+development:
+  password: dcfce65d6a44109031d9e7cb089c4af1
+  theme_id: live
+  store: starwoods-theme.myshopify.com
+production:
+  password: 566f1143aafb522baa549b7177dd0ec8
+  theme_id: live
+  store: starsource-merchandise.myshopify.com
+  timeout: 60s
+  readonly: true
+test:
+  password: dcfce65d6a44109031d9e7cb089c4af1
+  theme_id: live
+  store: can-i-buy-a-feeling.myshopify.com
+  proxy: http://localhost:3000
+  ignores: ignore.txt
+  ignore_files:
+    - "*.gif"
+    - "*.jpg"
+    - config/settings_data.json

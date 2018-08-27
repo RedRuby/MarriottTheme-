@@ -1,0 +1,195 @@
+{% paginate collection.products by 500 %}
+<!-- 	<img style="padding-left: 30px;" src="{{'westin.png' | asset_url}}"> -->
+<div class="small-images-shoppage"style="background-image: url({% if collection.image %}{{ collection.image | img_url: 'large' }}{% endif %});">
+          </div>
+  <header style="padding-left:30px;" class="grid medium-up--grid--table section-header small--text-center">
+    <div class="grid__item medium-up--one-half section-header__item">
+      
+      
+      <h1 class="section-header__title">
+        {{ collection.title }}
+       {%comment%} {% if current_tags %}
+          &ndash; {% assign title_tags = current_tags | join: ', ' %}
+          {{ title_tags }}
+        {% endif %}{%endcomment%}
+      </h1>
+      
+      
+      {% assign pageCollectionGroup = 'hotel' %}
+     {% if collection.id == 211937857 or collection.id == 211937537 or collection.id == 211937089 %}
+	      {% assign pageCollectionGroup = 'type' %}
+      {% endif %}
+      
+      {% if collection.description != blank %}
+        <div class="section-header__subtext rte">
+          {{ collection.description }}
+        </div>
+      {% endif %} 
+    </div>
+    <div class="grid__item medium-up--one-half medium-up--text-right section-header__item">
+      {% if settings.product_tags_enable and collection.all_tags.size > 0 %}
+        <div class="collection-sort">
+          <label for="SortBy" class="collection-sort__label">{{ 'collections.sorting.title_tags' | t }}</label>
+          <select name="SortTags" id="SortTags" class="collection-sort__input">
+            {% if collection.handle %}
+              <option value="/collections/{{ collection.handle }}">{{ 'collections.sorting.all_of_collection' | t: collection: collection.title }}</option>
+            {% elsif collection.current_type %}
+              <option value="{{ collection.current_type | url_for_type }}">{{ 'collections.sorting.all_of_collection' | t: collection: collection.title }}</option>
+            {% elsif collection.current_vendor %}
+              <option value="{{ collection.current_vendor | url_for_vendor }}">{{ 'collections.sorting.all_of_collection' | t: collection: collection.title }}</option>
+            {% endif %}
+            {% for tag in collection.all_tags %}
+              {% unless tag contains "SS" %}
+              <option value="/collections/{% if collection.handle != blank %}{{ collection.handle }}{% else %}all{% endif %}/{{ tag | handleize }}"{% if current_tags contains tag %} selected="selected"{% endif %}>{{ tag }}</option>
+              {% endunless %}
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
+      {% if settings.product_sorting_enable %}
+
+        <div class="collection-sort hide">
+          <label for="CollectionSort" class="collection-sort__label">
+            	{% if pageCollectionGroup == 'hotel' %}
+	            	Filter by type
+           		{% endif %}
+            	{% if pageCollectionGroup == 'type' %}
+	            	Filter by hotel
+           		{% endif %}
+          </label>
+          <select name="CollectionSort" id="CollectionSort" class="collection-sort__input">
+<!--             <option value="all">All</option> -->
+            {% for collection in collections %}
+            	{%- comment %}<locksmith:c6d7>{% endcomment -%}
+            	  {%- include 'locksmith-variables', locksmith_scope: 'subject', locksmith_subject: collection %}{% if locksmith_transparent %}{% else %}{% continue %}{% endif -%}
+            	{%- comment %}</locksmith:c6d7>{% endcomment -%}
+            	{% assign collectionGroup = 'hotel' %}
+               {% if collection.id == 211937857 or collection.id == 211937537 or collection.id == 211937089 %}
+                    {% assign collectionGroup = 'type' %}
+                {% endif %}
+            	{% if pageCollectionGroup == 'hotel' and collection.title != 'All' and collectionGroup == 'type' and collection.all_products_count > 0 and collection.title != 'SS' and collection.title != 'Home page' %}
+	            	<option value=".{{ collection.handle }}">{{ collection.title }}</option>
+           		{% endif %}
+            	{% if pageCollectionGroup == 'type' and collection.title != 'All' and collectionGroup == 'hotel' and collection.all_products_count > 0 and collection.title != 'SS' and collection.title != 'Home page' %}
+	            	<option value=".{{ collection.handle }}">{{ collection.title }}</option>
+           		{% endif %}
+            {% endfor %}
+          </select>
+        </div>
+      
+        <div class="collection-sort">
+          <label for="SortBy" class="collection-sort__label">{{ 'collections.sorting.title' | t }}</label>
+          <select name="SortBy" id="SortBy" class="collection-sort__input">
+<!--             <option value="manual">{{ 'collections.sorting.featured' | t }}</option> -->
+<!--             <option value="best-selling">{{ 'collections.sorting.best_selling' | t }}</option> -->
+      
+<!--             <option value="title-descending">{{ 'collections.sorting.za' | t }}</option> -->
+                       <option value="price-descending">{{ 'collections.sorting.price_descending' | t }}</option>
+ <option value="price-ascending">{{ 'collections.sorting.price_ascending' | t }}</option>
+                  <option value="title-ascending">{{ 'collections.sorting.az' | t }}</option>
+<!--             <option value="created-descending">{{ 'collections.sorting.date_descending' | t }}</option> -->
+<!--             <option value="created-ascending">{{ 'collections.sorting.date_ascending' | t }}</option> -->
+          </select>
+        </div>
+      
+      {% endif %}
+      
+
+
+    </div>
+  </header>
+
+  <div style="padding-left: 30px;" class="grid grid--no-gutters grid--uniform" id="collectionSortContainer">
+	<div class="grid__item small--one-whole no-results">
+      <h4>Merchandise for this property coming soon.</h4>
+    </div>
+    {% for product in collection.products %}
+    	{%- comment %}<locksmith:8d32>{% endcomment -%}
+    	  {%- include 'locksmith-variables', locksmith_scope: 'subject', locksmith_subject: product, locksmith_subject_parent: collection %}{% if locksmith_transparent %}{% else %}{% continue %}{% endif -%}
+    	{%- comment %}</locksmith:8d32>{% endcomment -%}
+    	{% assign class = '' %}
+    	{% for collection in product.collections %}
+            {%- comment %}<locksmith:0302>{% endcomment -%}
+              {%- include 'locksmith-variables', locksmith_scope: 'subject', locksmith_subject: collection, locksmith_subject_parent: product %}{% if locksmith_transparent %}{% else %}{% continue %}{% endif -%}
+            {%- comment %}</locksmith:0302>{% endcomment -%}
+            {% assign class = class | append: collection.handle | append: ' ' %}
+        {% endfor %}
+      <div class="grid__item small--one-half medium-up--one-third large-up--one-fifth {{ class }} mix">
+        {% include 'product-card', product: product %}
+      </div>
+    {% else %}
+      {% comment %}
+        Add default products to help with onboarding for collections/all only.
+
+        The onboarding styles and products are only loaded if the
+        store has no products.
+      {% endcomment %}
+      {% if collection.handle == 'all' %}
+        {% unless onboardingLoaded %}
+          {% comment %}
+            Only load onboarding styles if they have not already been loaded.
+          {% endcomment %}
+          {{ 'theme-onboarding.css' | global_asset_url | stylesheet_tag }}
+          {% assign onboardingLoaded = true %}
+        {% endunless %}
+        <div class="grid__item">
+          <div class="helper-section">
+            <div class="helper-note">
+              <span class="helper-icon"></span>
+              <h3>{{ 'collections.onboarding.modal_title' | t }}</h3>
+              <p>{{ 'collections.onboarding.no_products_html' | t }}</p>
+              <p><a href="/admin/products/new" class="admin-btn-primary">{{ 'collections.onboarding.add_product' | t }}</a></p>
+            </div>
+
+            <div class="grid grid--no-gutters grid--uniform helper-content">
+              {% assign collection_index = 1 %}
+              {% for i in (1..8) %}
+                {% case i %}
+                  {% when 7 %}
+                    {% assign collection_index = 1 %}
+                  {% when 8 %}
+                    {% assign collection_index = 2 %}
+                {% endcase %}
+                <div class="grid__item small--one-half medium-up--one-third large-up--one-fifth">
+                  <a href="/admin/products" class="product-card">
+                    <div class="product-card__image-wrapper">
+                      {% capture imageUrl %}//cdn.shopify.com/s/images/themes/product-{{ collection_index }}.png{% endcapture %}
+                      <div class="product-card__image">
+                        {{ imageUrl | img_tag }}
+                      </div>
+                    </div>
+                    <div class="product-card__info">
+                      <div class="product-card__name">{{ 'homepage.onboarding.product_title' | t }}</div>
+                    
+                    </div>
+                    <div class="product-card__overlay">
+                      {% assign view_string_length = 'products.product.view' | t | size %}
+                      <span class="btn product-card__overlay-btn {% if view_string_length > 8 %} btn--narrow{% endif %}">{{ 'products.product.view' | t }}</span>
+                    </div>
+                  </a>
+                </div>
+                {% assign collection_index = collection_index | plus: 1 %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% else %}
+        {% comment %}
+          If collection exists but is empty, display message
+        {% endcomment %}
+        <div class="grid__item small--text-center">
+          <p>{{ 'collections.general.no_matches' | t }}</p>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+{{ 'mixitup.js' | asset_url | script_tag }}
+{{ 'collection-sorting.js' | asset_url | script_tag }}
+  {% if paginate.pages > 1 %}
+    <div class="pagination">
+      {{ paginate | default_pagination | replace: '&laquo; Previous', '&larr;' | replace: 'Next &raquo;', '&rarr;' }}
+    </div>
+  {% endif %}
+
+{% endpaginate %}

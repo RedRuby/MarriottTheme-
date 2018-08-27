@@ -1,0 +1,332 @@
+{% assign ss_tag = "general.ss_tag" | t %}
+{% assign nss_tag = "general.nss_tag" | t %}
+
+{% if customer.tags contains ss_tag %}
+	{% assign CannotOrder = true %}
+{% endif %}
+
+{% if customer.tags contains nss_tag %}
+	{% assign CanOrder = true %}
+{% endif %}
+
+<h1>{{ 'customer.account.title' | t }}</h1>
+
+<div class="grid">
+  <div class="grid__item medium-up--two-thirds">
+    <div class="content-block content-block--large">
+      <h2>{{ 'customer.orders.title' | t | replace:"Order","Quote" }}<a href="/account" class="w3-right"><button type="button" class="btn btn--secondary w3-tiny">{{ 'customer.orders.title' | t }}</button></a></h2>
+      
+<!--       <p>Want to place your order again? Click on the order number listed below, and then click "Place This Order Again" to complete the checkout process.</p> -->
+      
+
+          <table id="order-table" class="responsive-table w3-table-all w3-hoverable" style="display:none;">
+            <thead>
+              <tr class="w3-text-white" style="background-color: {{ settings.color_header_bg }}">
+                <th class="text-center">{{ 'customer.orders.order_number' | t }}</th>
+                <th class="text-center">{{ 'customer.orders.date' | t }}</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-center">{{ 'customer.orders.total' | t }}</th>
+                {% if CanOrder %}<th class="text-center">Action</th>{% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr w3-repeat="orders">
+                <td class="text-center w3-text-blue" data-label="{{ 'customer.orders.order_number' | t }}"><a class="cancelled_{% raw %}{{ cancelled_at }}{% endraw %} order_name" href="/account/?view=draft-detail&id={% raw %}{{ id }}{% endraw %}&name={% raw %}{{ name }}{% endraw %}"><b>{% raw %}{{ name }}{% endraw %}</b></a></td>
+                <td class="text-center" data-label="{{ 'customer.orders.date' | t }}">{% raw %}{{ created_at }}{% endraw %}</td>
+                <td class="text-right" data-label="Quantity">{% raw %}{{ total_order_quantity }}{% endraw %}</td>
+                <td class="text-right" data-label="{{ 'customer.orders.total' | t }}">{% raw %}{{ total_price }}{% endraw %}</td>
+                {% if CanOrder %}<td class="text-center"><button type="button" class="btn btn--primary w3-tiny" onclick="orderCreate({% raw %}{{ id }}{% endraw %});">Create Order</button></td>{% endif %}
+              </tr>
+            </tbody>
+          </table>
+
+        <div id="table-style"></div>
+
+        <br>
+        <div class="text-center one-whole pagination">
+          <div id="paginationInit">
+
+          </div>
+        </div>
+
+        <p id="no-order" style="display:none;">No draft order found...</p>
+
+    </div>
+  </div>
+  <div class="grid__item medium-up--one-third">
+    <div class="content-block">
+      <h6 class="content-block__title">{{ 'customer.account.details' | t }}</h6>
+
+      <p>{{ customer.name }}</p>
+
+      {% if customer.default_address != nil %}
+        <p>
+          {{ customer.default_address.address1 }}<br>
+
+          {% if customer.default_address.address2 != "" %}
+            {{ customer.default_address.address2 }}<br>
+          {% endif %}
+
+          {% if customer.default_address.city != "" %}
+            {{ customer.default_address.city }}<br>
+          {% endif %}
+
+          {% if customer.default_address.province_code != "" %}
+            {{ customer.default_address.province_code | upcase }}<br>
+          {% endif %}
+
+          {% if customer.default_address.zip != "" %}
+            {{ customer.default_address.zip | upcase }}<br>
+          {% endif %}
+
+          {% if customer.default_address.country != "" %}
+            {{ customer.default_address.country }}<br>
+          {% endif %}
+
+          {% if customer.default_address.phone != "" %}
+            {{ customer.default_address.phone }}
+          {% endif %}
+        </p>
+      {% endif %}
+
+<!--       <p><a href="/account/addresses">{{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})</a></p> -->
+    </div>
+  </div>
+</div>
+
+<script>
+  var uri = new YouAreI(document.location.href);
+  query = uri.query_get();
+  
+  var page = (query.page != undefined) ? query.page : "1";
+  var start_date = (query.start_date != undefined) ? query.start_date : "";
+  var end_date = (query.end_date != undefined) ? query.end_date : ""; //{{'now' | date: '%m/%d/%Y'}}";
+  
+  var sort_order = '';
+  var sort_order_by = '';
+  var sort_date = 'desc';
+  var sort_payment_status = '';
+  var sort_order_status = '';
+  var sort_tracking_id = '';
+  var sort_quantity = '';
+  var sort_total = '';
+  
+  var order_id = "";
+  var data = {};
+  var orders_data = {};
+  var order_data = {};
+  
+  updateState(query);
+  
+//   $(".datepicker").datepicker({
+//       showAnim: "drop",
+//       dateFormat: "mm/dd/yy",
+//       showOtherMonths: true
+//   });
+  
+  function ApplyDate() {
+      var start_date = $("#start-date").val();
+      var end_date = $("#end-date").val();
+      if (start_date === "" || end_date === "") {
+          alert("Please select start and end dates.");
+      } else {
+          updateState({ start_date: start_date, end_date: end_date, page: '1' });
+      }
+  }
+  
+  function toggleOrderBtns(btn , data){ console.log('called-for:', data)
+    switch(btn){
+      case 'order': if(data == 'asc') $('#table-style').html('<style>.order_asc_btn{ color: #ea8221 !important; }</style>'); else $('#table-style').html('<style>.order_desc_btn{ color: #ea8221 !important; }</style>'); console.log('called-for:', btn); break;
+      case 'order_by': if(data == 'asc') $('#table-style').html('<style>.order_by_asc_btn{ color: #ea8221 !important; }</style>'); else $('#table-style').html('<style>.order_by_desc_btn{ color: #ea8221 !important; }</style>'); console.log('called-for:', btn); break;
+      case 'date': if(data == 'asc') $('#table-style').html('<style>.date_asc_btn{ color: #ea8221 !important; }</style>'); else $('#table-style').html('<style>.date_desc_btn{ color: #ea8221 !important; }</style>'); console.log('called-for:', btn); break;
+      case 'payment_status': if(data == 'asc') $('#table-style').html('<style>.payment_status_asc_btn{ color: #ea8221 !important; }</style>'); else $('#table-style').html('<style>.payment_status_desc_btn{ color: #ea8221 !important; }</style>'); console.log('called-for:', btn); break;
+      case 'order_status': if(data == 'asc') $('#table-style').html('<style>.order_status_asc_btn{ color: #ea8221 !important; }</style>'); else $('#table-style').html('<style>.order_status_desc_btn{ color: #ea8221 !important; }</style>'); console.log('called-for:', btn); break;
+      case 'tracking_id': if(data == 'asc') $('#table-style').html('<style>.tracking_id_asc_btn{ color: #ea8221 !important; }</style>'); else $('#table-style').html('<style>.tracking_id_desc_btn{ color: #ea8221 !important; }</style>'); console.log('called-for:', btn); break;
+      case 'quantity': if(data == 'asc') $('#table-style').html('<style>.quantity_asc_btn{ color: #ea8221 !important; }</style>'); else $('#table-style').html('<style>.quantity_desc_btn{ color: #ea8221 !important; }</style>'); console.log('called-for:', btn); break;
+      case 'total': if(data == 'asc') $('#table-style').html('<style>.total_asc_btn{ color: #ea8221 !important; }</style>'); else $('#table-style').html('<style>.total_desc_btn{ color: #ea8221 !important; }</style>'); console.log('called-for:', btn); break;
+    }
+  }
+  
+  function updateState(param){
+//       if(param.search_term != undefined){data.search_term = param.search_term; }else if(search_term.length != 0){ data.search_term = search_term; }
+      if(param.page != undefined)data.page = param.page; else if(page.length != 0)data.page = page;
+      if(param.start_date != undefined){data.start_date = param.start_date; }else if(start_date.length != 0){ data.start_date = start_date; }
+      if(param.end_date != undefined){data.end_date = param.end_date; }else if(end_date.length != 0){ data.end_date = end_date; }
+    
+//       if(param.order != undefined)data.order = param.order; else if(sort_order.length != 0)data.order = sort_order;
+//       if(param.order_by != undefined)data.order_by = param.order_by; else if(sort_order_by.length != 0)data.order_by = sort_order_by;
+//       if(param.date != undefined)data.date = param.date; else if(sort_date.length != 0)data.date = sort_date;
+//       if(param.payment_status != undefined)data.payment_status = param.payment_status; else if(sort_payment_status.length != 0)data.payment_status = sort_payment_status;
+//       if(param.order_status != undefined)data.order_status = param.order_status; else if(sort_order_status.length != 0)data.order_status = sort_order_status;
+//       if(param.tracking_id != undefined)data.tracking_id = param.tracking_id; else if(sort_tracking_id.length != 0)data.tracking_id = sort_tracking_id;
+//       if(param.quantity != undefined)data.quantity = param.quantity; else if(sort_quantity.length != 0)data.quantity = sort_quantity;
+//       if(param.total != undefined)data.total = param.total; else if(sort_total.length != 0)data.total = sort_total;
+    
+      fetchOrder(data);     
+      
+  }
+  
+  function fetchOrder(data){
+    
+//     if(data.search_term != undefined){ search_term = data.search_term; $('#search-text').val(data.search_term); (data.search_term.length) ? $('.search-reset').removeClass('bounceOut').addClass('bounceIn animated').show() : $('.search-reset').removeClass('bounceIn').addClass('bounceOut'); }
+    if(data.start_date != undefined){ start_date = data.start_date; $('#start-date').val(data.start_date); (data.start_date.length) ? $('.date-reset').removeClass('bounceOut').addClass('bounceIn animated').show() : $('.date-reset').removeClass('bounceIn').addClass('bounceOut'); }
+    if(data.end_date != undefined){ end_date = data.end_date; $('#end-date').val(data.end_date); }
+    page = data.page;
+    
+//     if(data.order != undefined){ sort_order = data.order; if(data.order.length != 0)toggleOrderBtns('order', data.order); }
+// 	if(data.order_by != undefined){ sort_order_by = data.order_by; if(data.order_by.length != 0)toggleOrderBtns('order_by', data.order_by); }
+//     if(data.date != undefined){ sort_date = data.date; if(data.date.length != 0)toggleOrderBtns('date', data.date); }
+//     if(data.payment_status != undefined){ sort_payment_status = data.payment_status; if(data.payment_status.length != 0)toggleOrderBtns('payment_status', data.payment_status); }
+//     if(data.order_status != undefined){ sort_order_status = data.order_status; if(data.order_status.length != 0)toggleOrderBtns('order_status', data.order_status); }
+//     if(data.tracking_id != undefined){ sort_tracking_id = data.tracking_id; if(data.tracking_id.length != 0)toggleOrderBtns('tracking_id', data.tracking_id); }
+//     if(data.quantity != undefined){ sort_quantity = data.quantity; if(data.quantity.length != 0)toggleOrderBtns('quantity', data.quantity); }
+//     if(data.total != undefined){ sort_total = data.total; if(data.total.length != 0)toggleOrderBtns('total', data.total); }
+    
+    data = removeEmpty(data);  
+    History.pushState({ url: document.location.href }, document.title, '?view={{ template.suffix }}&' + $.param(data) );
+    
+    data2 = Object.assign({}, data);
+    data2.domain = "{{ shop.domain }}"; 
+    data2.cemail = "{{ customer.email }}"; 
+    data2.cid = "{{ customer.id }}";
+    
+    freez();
+    
+    console.log(data2);
+    
+    {% comment %}{% endcomment %}
+      $.ajax({
+        url: "/apps/api/list_orders.json",
+        type:'GET',
+        data: data2,
+        dataType: 'json',
+        contentType: 'application/json',
+        success:function(data){
+          console.log(JSON.stringify(data));
+          if(data.message){
+              console.log(data.message);
+              show_message4(data.message,true);
+          }
+           else if(data.error){
+              console.log(data.error);
+              show_message4(data.error,false);
+          }
+          if(data.orders != undefined){ //&& data.orders.length > 0
+        	dataSetup(data);
+          }else{
+          	$('#order-table, .pagination').hide();
+            $('#no-order').show();
+          }
+          defreez();  
+        },
+        error:function(data){
+          console.log(JSON.stringify(data)); 
+          console.log('Some error occured..');
+          show_message4('Some error occured..',false);
+        }
+      });
+  }
+  
+  function dataSetup(data){ 
+      var i; 
+      var myArray = data['orders'];
+      for (i = 0; i < myArray.length; i++) {
+        
+      } 
+//       console.log(JSON.stringify(data));
+  //     return(data);
+         populateTable(data);
+  }
+  
+  function populateTable(data){
+      orders_data = data;
+      w3DisplayData("order-table", data);
+      $('#order-table, .pagination').show();
+      $('#no-order').hide();
+      $('body, html').delay(100).animate({scrollTop: $('form').offset().top-100});
+//       $('.btn_Paid').prop('disabled','disabled');
+      $("td:contains('{% raw %}{{{% endraw %}'):contains('{% raw %}}}{% endraw %}')").text('');
+    
+      $('#paginationInit').pagination({
+          items: data["total_orders"],
+          itemsOnPage: data["per_page"],
+          hrefTextPrefix: "javascript:updateState({ 'page': '",
+          hrefTextSuffix: "'});",
+          currentPage: data["page"],
+          prevText:'<i class="fa fa-arrow-left"></i>',
+          nextText:'<i class="fa fa-arrow-right"></i>',
+          listStyle: 'w3-pagination',
+          ellipsePageSet: false,
+  //         cssStyle: 'light-theme'
+      });
+  }
+  
+  function removeEmpty(obj) {
+    Object.keys(obj).forEach(function(key) {
+      if (obj[key] && typeof obj[key] === 'object') removeEmpty(obj[key])
+      else if (!obj[key] && obj[key] !== undefined) delete obj[key]
+    });
+    return obj;
+  };
+  
+  {% if CanOrder %}
+  
+  function orderCreate(index){
+    order_data = orders_data.orders.filter(function( obj ) {
+      if(obj.id != undefined) return obj.id == index;
+    })[0];     
+    
+  	$.when(data = $.getJSON('/cart.json')).done(function(){ 
+        cart_json = data.responseJSON;
+        if(cart_json.items.length > 0){
+          showCartAlert();
+        }else{
+          buildOrderUrl();
+        }
+    });
+  }
+  
+  function showCartAlert(){
+    if(confirm("Caution !! This will also clear your existing Cart Items...")){
+      $.when(data = $.getJSON('/cart/clear.json')).done(function(){
+      	buildOrderUrl();
+      });
+    }
+  }
+
+  function buildOrderUrl(){
+  	url="/cart/", object = order_data.line_items; 
+    object.forEach(function(item, index){ 
+      url= url+item.variant_id+":"+item.quantity+((object.length-1 > index) ? "," : "");
+    });
+    
+    ship = {"attributes[Quote]": order_data.name};
+    
+    obj = order_data.shipping_address;
+    
+    for(var key in obj){
+      if("first_name,last_name,address1,address2,city,country,province,zip".split(',').indexOf(key) != -1){
+        ship["checkout[shipping_address]["+key+"]"] = obj[key];
+      }
+    }
+    
+    location.assign(url+"?"+$.param(ship));
+  }
+  
+  {% endif %}
+  
+</script>
+
+<style>
+	td, th {
+        padding: 8px;
+      	font-size:14.5px;
+      	vertical-align: middle !important;
+      	border: 1px solid #ccc;
+    }
+  	th{ position:relative; }
+  	.btn-group, .cross-btn { 
+      bottom: 10px;
+    }
+    table{ border: 1px solid #aaa; }
+</style>

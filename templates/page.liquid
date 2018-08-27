@@ -1,0 +1,14 @@
+<h1 class="small--text-center">{{ page.title }}</h1>
+
+<div class="grid">
+  <div class="grid__item medium-up--three-quarters large-up--four-fifths">
+    <div class="content-block content-block--large">
+      <div class="rte rte--indented-images">
+        {{ page.content }}
+      </div>
+    </div>
+  </div>
+  <div class="grid__item medium-up--one-quarter large-up--one-fifth small--hide">
+    {% include 'featured-products' %}
+  </div>
+</div>

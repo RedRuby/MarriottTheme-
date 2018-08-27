@@ -1,0 +1,80 @@
+   
+<div class="grid">
+	
+  <div  class="grid__item two-thirds push--large--one-sixth no-margin">
+    <h1>CONTACT</h1>
+    <div class="content-block text-center">
+      <div style="padding-left:0px;" class="grid__item">
+        <div class="grid__item one-half contact-box-text">
+          <p class="p-text">
+            This online store is managed and run by<br>
+            <b>Lapine Inc.</b><br>
+            15 Commerce Road<br>
+            Stamford, CT 06902<br>
+            marriott@lapineinc.com<br>
+
+            1-203-703-6894
+          </p>
+        </div>
+      	
+        <div class="grid__item one-half contact-box-text"><p class="p-text"></p></div>
+      </div>
+
+      <div class="form-vertical text-center">
+      {% form 'contact' %}
+
+          {% if form.posted_successfully? %}
+            <div class="successForm feedback">
+              {{ 'contact.form.post_success' | t }}
+            </div>
+          {% endif %}
+
+          {% if form.errors %}
+          <div class="errorForm feedback">
+            <!-- {{ form.errors.size }} or {{ form.errors | size }} -->
+            {% for field in form.errors %}
+              <p>The {{ field | capitalize | replace: 'Body', 'Message' }} field {{ form.errors.messages[field] }}.</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+    	  <input type="text" required id="Email" name="contact[name]" placeholder="Name">
+	
+          <select name="concern" class="input-full">
+              <option class="input-full" value=" ">Department</option>
+              <option>Housekeeping</option>
+              <option>Marketing & Sales</option>
+              <option>Events</option>
+              <option>Human Resources</option>
+              <option>Food & Beverage</option>
+              <option>Corporate</option>
+           </select>
+        
+    	  <input type="text" placeholder="Property" name="contact[property]">
+      	  <input type="email" required id="contactFormEmail" name="contact[email]" placeholder="Email">
+
+ 		  <input type="text" required name="contact[concern]" placeholder="Concerning">
+      
+          <textarea required rows="10" id="contactFormMessage" name="contact[body]" placeholder="Message"></textarea>
+
+          <p>
+            <input type="submit" id="no-background-color" value="Send" class="btn ">
+          </p>
+        
+
+        {% endform %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function strip(html){
+     var doc = new DOMParser().parseFromString(html, 'text/html');
+     return doc.body.textContent || "";
+  }
+
+  $('input[name^="contact["]').on("change", function(){
+      this.value = strip(this.value);
+  });
+</script>

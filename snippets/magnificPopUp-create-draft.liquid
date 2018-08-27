@@ -1,0 +1,439 @@
+<div class="mfp-bg mfp-fade mfp-ready" style="display:none; opacity:0.9; background-color:gray;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+    <div class="mfp-content bounceIn animated w3-card-2">
+
+      <div id="CreateDraftModal" class="white-popup-block form-vertical" style="display:none; padding:0;">
+        <form id="CreateDraftModal_form1" action="" method="post" enctype='application/json' onsubmit="event.preventDefault(); fetchCartnShip(); showForm(2);" order_id="">
+          <div class="text-center">
+            <button type="button" disabled1 class="btn btn--secondary toggle-btn1">Shipping Address</button>
+            <button type="button" disabled class="btn btn--secondary toggle-btn2 hide" onclick="showForm(2); $(window).scrollTop(0);">Billing Address</button>
+          </div>
+          
+          <span class=""><br></span>
+          
+          <div class="grid w3-margin-top">
+            {% if customer.addresses.size > 0 %}
+            <div class="grid__item one-whole">
+              <label for="add_role_name" class="w3-bold text-dark-blue" >Select from Address List</label>
+              <select id="shipping_address_select" name="shipping_address_select" onchange="fillAddress(customer_addresses[this.value], 1); contentChanged();" >
+                <option value="" selected disabled>Select</option>
+                  {% for address in customer.addresses %}
+                    <option value="{{ forloop.index0 }}">{{ address | format_address | replace:"<br>",", " | strip_html }}{% if address == customer.default_address %} ({{ 'customer.addresses.default' | t }}){% endif %}</option>
+                  {% endfor %}
+              </select>
+            </div>
+            
+            <div class="grid__item one-whole text-center">
+              <hr style="border-color:lightgray;">
+              <label>-- Or Fill New Shipping Address --</label>
+            </div>
+            {% endif %}
+              
+          	<div class="grid__item one-half medium-down--one-whole">
+              <label for="ship_first_name" class="w3-bold text-dark-blue" >{{ 'customer.addresses.first_name' | t }}</label>
+              <input id="ship_first_name" type="text" name="shipping[first_name]" required="required" placeholder="" onchange="contentChanged(this);"/>
+            </div>
+            <div class="grid__item one-half medium-down--one-whole">
+              <label for="ship_last_name" class="w3-bold text-dark-blue" >{{ 'customer.addresses.last_name' | t }}</label>
+              <input id="ship_last_name" type="text" name="shipping[last_name]" required="required" placeholder="" onchange="contentChanged(this);"/>
+            </div>
+            <div class="grid__item one-half medium-down--one-whole1">
+              <label for="ship_address1" class="w3-bold text-dark-blue" >{{ 'customer.addresses.address1' | t }}</label>
+              <input id="ship_address1" type="text" name="shipping[address1]" required="required" placeholder="" onchange="contentChanged(this);"/>
+            </div>
+            <div class="grid__item one-half medium-down--one-whole1">
+              <label for="ship_address2" class="w3-bold text-dark-blue" >{{ 'customer.addresses.address2' | t }}</label>
+              <input id="ship_address2" type="text" name="shipping[address2]" required1="required" autocomplete="off" placeholder="" onchange="contentChanged(this);"/>
+            </div>
+            <div class="grid__item one-half medium-down--one-whole">
+              <label for="ship_city" class="w3-bold text-dark-blue" >{{ 'customer.addresses.city' | t }}</label>
+              <input id="ship_city" type="text" name="shipping[city]" required="required" placeholder="" onchange="contentChanged(this);"/>
+            </div>
+            <div class="grid__item one-half medium-down--one-whole">
+              <label for="ship_country" class="w3-bold text-dark-blue" >{{ 'customer.addresses.country' | t }}</label>
+              <select id="ship_country" name="shipping[country]" required="required" data-default="{{ form.country }}" onchange="contentChanged(this);">{{ country_option_tags }}</select>
+            </div>
+            <div class="grid__item one-half medium-down--one-whole"  id="ship_province_container">
+              <label for="ship_province" class="w3-bold text-dark-blue" >{{ 'customer.addresses.province' | t }}</label>
+              <select id="ship_province" name="shipping[province]" required="required" placeholder="" data-default="{{ form.province }}" onchange="contentChanged(this);"></select>
+            </div>
+            <div class="grid__item one-half medium-down--one-whole">
+              <label for="ship_zip" class="w3-bold text-dark-blue" >{{ 'customer.addresses.zip' | t }}</label>
+              <input id="ship_zip" type="text" name="shipping[zip]" required="required" autocomplete="off" placeholder="" onchange="contentChanged(this);"/>
+            </div>
+          </div>
+          <br>
+          <div class="text-center">
+            <div class="text-left">(<span style='color:red;'>&nbsp;*&nbsp;</span>) marked fields are required.</div>
+            <br>
+            <button type="submit" style="" class="btn" disabled="disabled"  onclick1="showForm(2);">Calculate Shipping</button><br><br>
+            <a class="w3-text-red" style="cursor:pointer;" onclick="updateModal_a();"><u>Cancel</u></a>
+            <br>
+          </div>
+        </form>
+        <form id="CreateDraftModal_form2" action="" method="post" enctype='application/json' onsubmit="createDraftSubmit(event, this); return false ;" order_id="" style="display:none;">
+          
+          <div class="text-center">
+            <button type="button" class="btn btn--secondary toggle-btn1" onclick="showForm(1);"><i class="fa fa-arrow-left"></i>&nbsp; Back to Shipping Address</button>
+            <button type="button" disabled class="btn btn--secondary toggle-btn2 hide">Billing Address</button>
+          </div>
+          {% comment %}
+          
+          <span class=""><br></span>
+          
+          <div class="grid w3-margin-top">
+            <br>
+            <div class="grid__item one-whole text-center">
+              <label for="bill_type1" style="display:inline; line-height:1; padding:0 10px;"><input id="bill_type1" type="radio" checked name="billing_add" onclick="billSetup();" /> Same as Shipping Address</label>
+              <label for="bill_type2" style="display:inline; line-height:1; padding:0 10px;"><input id="bill_type2" type="radio" name="billing_add" onclick="billSetup(true); this.checked = true;" /> Different Billing Address</label>
+              <hr style="border-color:lightgray;">
+            </div>
+            
+            <div class="grid__item one-whole" style="position:relative;">
+              
+              {% if customer.addresses.size > 0 %}
+              <div id="bill_add_select" class="" style="display:none;">
+                <div class="grid__item one-whole">
+                  <label for="add_role_name" class="w3-bold text-dark-blue" >Select from Address List</label>
+                  <select id="billing_address_select" name="billing_address_select" onchange="fillAddress(customer_addresses[this.value], 2); contentChanged_a();" >
+                    <option value="" selected disabled>Select</option>
+                      {% for address in customer.addresses %}
+                        <option value="{{ forloop.index0 }}">{{ address | format_address | replace:"<br>",", " | strip_html }}{% if address == customer.default_address %} ({{ 'customer.addresses.default' | t }}){% endif %}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+
+                <div class="grid__item one-whole text-center">
+                  <hr style="border-color:lightgray;opacity:0.5;">
+                  <label>-- Or Fill New Billing Address --</label>
+                </div>
+              </div>
+              {% endif %}
+
+              <div class="grid__item one-half medium-down--one-whole">
+                <label for="bill_first_name" class="w3-bold text-dark-blue" >{{ 'customer.addresses.first_name' | t }}</label>
+                <input id="bill_first_name" type="text" name="billing[first_name]" required="required" placeholder="" onchange="contentChanged_a();"/>
+              </div>
+              <div class="grid__item one-half medium-down--one-whole">
+                <label for="bill_last_name" class="w3-bold text-dark-blue" >{{ 'customer.addresses.last_name' | t }}</label>
+                <input id="bill_last_name" type="text" name="billing[last_name]" required="required" placeholder="" onchange="contentChanged_a();"/>
+              </div>
+              <div class="grid__item one-half medium-down--one-whole1">
+                <label for="bill_address1" class="w3-bold text-dark-blue" >{{ 'customer.addresses.address1' | t }}</label>
+                <input id="bill_address1" type="text" name="billing[address1]" required="required" placeholder="" onchange="contentChanged_a();"/>
+              </div>
+              <div class="grid__item one-half medium-down--one-whole1">
+                <label for="bill_address2" class="w3-bold text-dark-blue" >{{ 'customer.addresses.address2' | t }}</label>
+                <input id="bill_address2" type="text" name="billing[address2]" required1="required" autocomplete="off" placeholder="" onchange="contentChanged_a();"/>
+              </div>
+              <div class="grid__item one-half medium-down--one-whole">
+                <label for="bill_city" class="w3-bold text-dark-blue" >{{ 'customer.addresses.city' | t }}</label>
+                <input id="bill_city" type="text" name="billing[city]" required="required" placeholder="" onchange="contentChanged_a();"/>
+              </div>
+              <div class="grid__item one-half medium-down--one-whole">
+                <label for="bill_country" class="w3-bold text-dark-blue" >{{ 'customer.addresses.country' | t }}</label>
+                <select id="bill_country" name="billing[country]" required="required" data-default="{{ form.country }}">{{ all_country_option_tags }}</select>
+              </div>
+              <div class="grid__item one-half medium-down--one-whole" id="bill_province_container">
+                <label for="bill_province" class="w3-bold text-dark-blue" >{{ 'customer.addresses.province' | t }}</label>
+                <input id="bill_province" type="text" name="billing[province]" required="required" placeholder="" onchange="contentChanged_a();"/>
+              </div>
+              <div class="grid__item one-half medium-down--one-whole">
+                <label for="bill_zip" class="w3-bold text-dark-blue" >{{ 'customer.addresses.zip' | t }}</label>
+                <input id="bill_zip" type="text" name="billing[zip]" required="required" autocomplete="off" placeholder="" onchange="contentChanged_a();"/>
+              </div>
+              
+              <div id="form_overlay" style="position:absolute; top:0; bottom:0; left:0; right:0; opacity:0.5; background:white;" ></div>
+            </div>
+          </div>
+          {% endcomment %}
+          
+          <div id="cart_final">
+          	<input type="hidden" name="billing[ship_price]" required>
+          </div>
+          
+          <div class="text-center">
+            <br>
+            <button type="submit" style="" class="btn" disabled="disabled">Complete Quotation</button><br><br>
+            <a class="w3-text-red" style="cursor:pointer;" onclick="showForm(1);"><u><i class="fa fa-arrow-left"></i>&nbsp; Back</u></a>
+            <a class="w3-text-red w3-margin-left" style="cursor:pointer;display:inline-block;" onclick="updateModal_a(); showForm(1);"><u>Cancel</u></a>
+            <br>
+          </div>
+        </form>
+      </div>
+      <button title="Close (Esc)" onclick="updateModal_a(); showForm(1);" type="button" class="mfp-close">×</button>
+
+    </div>
+    <div class="mfp-preloader w3-center center-block" style="display:initial; z-index:2000 !important;"><i class="fa fa-refresh fa-2x text-lite-blue w3-spin "></i></div>
+  </div>
+
+</div>
+
+<style>
+  .mfp-content{
+    width:95% !important; 
+    min-height:632px;
+    background:white; 
+    padding:40px 50px 50px;
+    max-width:830px;
+/*     min-width:400px; */
+    position:relative;
+    border-radius:2px;
+    margin:20px auto;
+  }
+  
+  .mfp-close{ color: black; }
+  
+  @media (max-width: 749px){
+  	.mfp-content{
+      width:100% !important; 
+      height:auto;
+      padding:20px;
+    }
+    .mfp-container{
+      height:auto;
+    }
+  }
+  
+  #CreateDraftModal label{
+  	display: block;
+    margin-top: 20px;
+  }
+</style>
+
+{{ 'jQuery.serializeJSON.js' | asset_url | script_tag }}
+
+<script>
+  
+  var changed_a = '';
+  var mfpHTML_a = '';
+  
+  var customer_addresses = {{ customer.addresses | json }};
+  
+  
+  $(document).ready(function(){
+  	 mfpHTML_a = $('#CreateDraftModal').html();
+//      FormValidationPolyfill.addForm('CreateDraftModal_form'); 
+    $('#CreateDraftModal_form1 [required]').parent().find('label').append("<span style='color:red;font-size:15px;'>&nbsp;*</span>");
+    $('#CreateDraftModal_form1:not([required])').parent().find('label').append("<span style='color:white;font-size:15px; visibility:hidden;'>&nbsp;*</span>");
+  });
+  
+  function billSetup(clicked){
+  	if($('#bill_type1').is(":checked")){
+      fillAddress($('#CreateDraftModal_form1 [name^="shipping["]').serializeJSON().shipping, 2);
+      $('#bill_add_select').hide();
+      $('#form_overlay').show();
+    }else if(clicked){
+      $('#CreateDraftModal_form2').trigger("reset");
+      $('#bill_add_select').show();
+      $('#form_overlay').hide();
+    }
+    contentChanged_a();
+  }
+  
+  function fetchCartnShip(){
+      shipping_addr = $('#CreateDraftModal_form1 [name^="shipping["]').serializeJSON().shipping;
+    
+      shipping_addr.state = Countries[shipping_addr.country].province_codes[shipping_addr.province];
+
+      shipping_addr.country = Countries[shipping_addr.country].code;
+    
+      $.when(data_cart = $.getJSON('/cart.json')).done(function(){
+    
+      data2 = {
+          line_items 	   : data_cart.responseJSON.items,
+          shipping_address : shipping_addr,
+      };
+      console.log(data2);
+    
+      $.ajax({
+        url: "/cart?view=draft",
+        success: function(data){
+        	$('#cart_final').html(data);
+          	$.ajax({
+              url: "apps/api/calculate_shipping_price.json",
+              type: "POST",
+              data: JSON.stringify(data2),
+              contentType: 'application/json',
+              success: function(data){
+                  console.log(data);
+                  if(data.status == "200"){
+//                         console.log(data.message);
+                        $('#cart_final .cart_ship').html("{{ 0 | money | replace: "0.00", "" }}"+(Number(data.shipping_lines[0].price)).toFixed(2));
+                        $('#cart_final .cart_total').html("{{ 0 | money | replace: "0.00", "" }}"+ (Number(data.shipping_lines[0].price)+window.cart_subtotal).toFixed(2));
+                        contentChanged_a();                                  
+                    }
+                     else if(data.status == "400"){
+                        console.log(data.error);
+                        show_message3(data.error,false);
+                    }
+
+                  },
+                  error:function(data){
+                    console.log(JSON.stringify(data)); 
+                    console.log('Some error occured..');
+                    show_message3('Some error occured..',false);
+                  }
+            });
+        }
+      });
+        
+    });
+  }
+  
+  function showForm(form){
+      $('#CreateDraftModal_form1, #CreateDraftModal_form2').toggle();
+    
+      if(form == 2) billSetup();
+  }
+  
+  function fillAddress(address_raw, form){
+    var address = Object.keys(address_raw)
+        .sort()
+        .reduce(function (acc, key) { 
+            acc[key] = address_raw[key];
+            return acc;
+        }, {});
+
+    
+    for(var key in address){
+      el = $('#CreateDraftModal_form'+ form +' [name="'+ ((form == 1) ? "shipping" : "billing") +'['+ key +']"]');
+      
+      if( el.is('input[type="text"]') || el.is('textarea') ){ 
+        el.val(address[key]).trigger("change");
+      }
+      else if(  el.is('select') ){
+        el.find('option[value="'+address[key]+'"]').prop('selected', 'selected').end().trigger('change').parent().show();
+        if(key == 'country'){
+          new Shopify.CountryProvinceSelector('ship_country', 'ship_province', {
+            hideElement: 'ship_province_container'}
+          );
+        }
+      }
+      
+//       $('#CreateDraftModal_form'+ form +' [name="'+ ((form == 1) ? "shipping" : "billing") +'['+ key +']"] option[value="'+ customer_addresses[index][key] +'"]').prop("selected","selected");
+//       console.log(key);
+    }
+  }
+  
+  function updateModal_a(){
+    $('html').css('overflow','auto');
+    $('.draft-add-form').find('.mfp-bg, .mfp-wrap, #CreateDraftModal, .mfp-content').hide().addClass('mfp-hide');
+    $('.draft-add-form').find('.mfp-preloader').show();
+    
+    if( changed_a == true ){ 
+      $('#CreateDraftModal form').trigger("reset");
+//       $('#CreateDraftModal').html(mfpHTML_a); 
+    
+      changed_a = ''; 
+      location.assign('/cart/clear');
+    }
+  }
+  
+  function contentChanged(elem){
+    empty_field = $('#CreateDraftModal_form1 [name][required]').filter(function(){ return this.value.length == 0; }).length;
+    
+    if(elem)
+      elem.value = strip(elem.value);
+    
+    if(!empty_field){
+      $('#CreateDraftModal_form1 button[type = "submit"], .toggle-btn2').removeAttr('disabled'); 
+    }else{
+      $('#CreateDraftModal_form1 button[type = "submit"], .toggle-btn2').prop('disabled', 'disabled'); 
+    }
+  }
+  
+  function strip(html){
+     var doc = new DOMParser().parseFromString(html, 'text/html');
+     return doc.body.textContent || "";
+  }
+  
+  function contentChanged_a(){
+    empty_field = $('#CreateDraftModal_form2 [name][required]').filter(function(){ return this.value.length == 0; }).length;
+    
+    if(!empty_field){
+      $('#CreateDraftModal_form2 button[type = "submit"], .toggle-btn12').removeAttr('disabled'); 
+    }else{
+      $('#CreateDraftModal_form2 button[type = "submit"], .toggle-btn12').prop('disabled', 'disabled'); 
+    }
+  }
+  
+  function createDraftSubmit(e, obj){
+    e.preventDefault();
+    e.stopPropagation();
+    
+    freez();
+    $.when(data = $.getJSON('/cart.json')).done(function(){ 
+      cart_json = data.responseJSON;
+      if(cart_json.item_count == 0 || cart_json.item_count != window.cart_hash.item_count || JSON.stringify(cart_json.items) != JSON.stringify(window.cart_hash.items)){
+      	alert("Your cart is not updated, refreshing it .. !!!");
+        location.reload();
+      }
+    }).done(function(){ 
+      defreez();
+      data2 = {
+            cid			   : "{{ customer.id }}",
+            email     	   : "{{ customer.email }}",
+            note	  		   : $('[name="note"]').val(),
+            cart 			   : cart_json,
+            shipping_address : $('#CreateDraftModal_form1 [name^="shipping["]').serializeJSON().shipping,
+            billing_address  : $('#CreateDraftModal_form1 [name^="shipping["]').serializeJSON().shipping{% comment %}$('#CreateDraftModal_form2 [name^="billing["]').serializeJSON().billing{% endcomment %},
+            shipping_price   : $('#cart_final .cart_ship').text().replace("{{ 0 | money | replace: "0.00", "" }}",""),
+            total_price      : $('#cart_final .cart_total').text().replace("{{ 0 | money | replace: "0.00", "" }}","")
+      };
+
+      console.log(data2);
+      {% comment %}{% endcomment %}
+      freez();
+
+      $.ajax({
+          url: "/apps/api/draft_order.json",
+          type:'POST',
+          data: JSON.stringify(data2),
+          dataType: 'json',
+          contentType: 'application/json',
+          success:function(data){
+            console.log(JSON.stringify(data));
+            if(data.status == "200"){
+                console.log(data.message);
+                $('#CreateDraftModal').addClass("text-center").html("<br><br><img src='{{ "done.gif" | asset_url }}' style='width:200px; height:auto;'/><br><br>");
+                show_message4(data.message,true);
+                setTimeout(function(){
+                  changed_a = true;
+                  $('#CreateDraftModal').append("<a href='/account?view=draft-detail&id="+data.id+"'><button type='button' class='btn btn--secondary'>View Quotation</button></a>");
+  //                 updateModal_a(true);
+                  data = $.getJSON('/cart/clear.json');
+                },1500);
+            }
+             else if(data.status == "400"){
+                console.log(data.message);
+                show_message4(data.message,false);
+            }
+
+          },
+          error:function(data){
+            console.log(JSON.stringify(data)); 
+            console.log('Some error occured..');
+            show_message4('Some error occured..',false);
+          }
+        });
+
+
+      return false;
+      
+    });
+  }
+  
+</script>
+
+<!-- <style>
+  #CreateDraftModal_form1 input[required]:before{
+  	content: "*";
+    color: red;
+    padding : 5px;
+    position: absolute;
+  }
+</style>
+ -->

@@ -1,0 +1,107 @@
+{% assign ss_tag = "general.ss_tag" | t %}
+{% assign nss_tag = "general.nss_tag" | t %}
+
+{% if customer.tags contains ss_tag %}
+	{% assign CannotOrder = true %}
+{% endif %}
+
+{% if customer.tags contains nss_tag %}
+	{% assign CanOrder = true %}
+{% endif %}
+
+
+
+<h1>{{ 'customer.account.title' | t }}</h1>
+
+<div class="grid">
+  <div class="grid__item medium-up--two-thirds">
+    <div class="content-block content-block--large">
+      <h2>{{ 'customer.orders.title' | t }}<a href="/account?view=draft-orders" class="w3-right"><button type="button" class="btn btn--secondary w3-tiny">{{ 'customer.orders.title' | t | replace:"Order","Quote" }}</button></a></h2>
+      
+      {% if CanOrder %}
+      <p>Want to place your order again? Click on the order number listed below, and then click "Place This Order Again" to complete the checkout process.</p>
+      {% endif %}
+
+      {% paginate customer.orders by 20 %}
+        {% if customer.orders.size != 0 %}
+
+          <table class="responsive-table w3-table-all w3-hoverable">
+            <thead>
+              <tr class="w3-text-white" style="background-color: {{ settings.color_header_bg }}">
+                <th>{{ 'customer.orders.order_number' | t }}</th>
+                <th>{{ 'customer.orders.date' | t }}</th>
+                <th>{{ 'customer.orders.payment_status' | t }}</th>
+                <th>{{ 'customer.orders.fulfillment_status' | t }}</th>
+                <th>{{ 'customer.orders.total' | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for order in customer.orders %}
+                <tr>
+                  <td class="text-center w3-text-blue" data-label="{{ 'customer.orders.order_number' | t }}"><b>{{ order.name | link_to: order.customer_url }}</b></td>
+                  <td data-label="{{ 'customer.orders.date' | t }}">{{ order.created_at | date: format: 'month_day_year' }}</td>
+                  <td data-label="{{ 'customer.orders.payment_status' | t }}">{{ order.financial_status_label }}</td>
+                  <td data-label="{{ 'customer.orders.fulfillment_status' | t }}">{{ order.fulfillment_status_label }}</td>
+                  <td data-label="{{ 'customer.orders.total' | t }}">{{ order.total_price | money }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        {% else %}
+
+          <p>{{ 'customer.orders.none' | t }}</p>
+
+        {% endif %}
+        {% if paginate.pages > 1 %}
+          <div class="pagination">
+            {{ paginate | default_pagination | replace: '&laquo; Previous', '&larr;' | replace: 'Next &raquo;', '&rarr;' }}
+          </div>
+        {% endif %}
+      {% endpaginate %}
+    </div>
+  </div>
+  <div class="grid__item medium-up--one-third">
+    <div class="content-block">
+      <h6 class="content-block__title">{{ 'customer.account.details' | t }}</h6>
+
+      <p>{{ customer.name }}</p>
+
+      {% if customer.default_address != nil %}
+        <p>
+          {{ customer.default_address.address1 }}<br>
+
+          {% if customer.default_address.address2 != "" %}
+            {{ customer.default_address.address2 }}<br>
+          {% endif %}
+
+          {% if customer.default_address.city != "" %}
+            {{ customer.default_address.city }}<br>
+          {% endif %}
+
+          {% if customer.default_address.province_code != "" %}
+            {{ customer.default_address.province_code | upcase }}<br>
+          {% endif %}
+
+          {% if customer.default_address.zip != "" %}
+            {{ customer.default_address.zip | upcase }}<br>
+          {% endif %}
+
+          {% if customer.default_address.country != "" %}
+            {{ customer.default_address.country }}<br>
+          {% endif %}
+
+          {% if customer.default_address.phone != "" %}
+            {{ customer.default_address.phone }}
+          {% endif %}
+        </p>
+      {% endif %}
+
+<!--       <p><a href="/account/addresses">{{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})</a></p> -->
+    </div>
+  </div>
+</div>
+
+<style>
+  td, th{ border: 1px solid #ccc; }
+</style>

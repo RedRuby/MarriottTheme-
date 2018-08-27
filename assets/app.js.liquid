@@ -1,0 +1,50 @@
+jQuery(document).ready(function($){
+	var $checkoutBtn = $( document.getElementById('stwCheckout') ),
+        $confirmBtn  = $( document.getElementById( 'stwConfirm' ) ),
+		$termsForm   = $( document.getElementById( 'stwTermsForm' ) ),
+        $termsError  = $( '#terms .error' );
+  
+  $('.modal-trigger').on('click', function(e){
+	e.preventDefault();
+    var targetSelector = $(this).attr('href'),
+        $target		   = $(targetSelector);
+    
+    $target.addClass('-show');
+    
+  });
+  
+  $('.modal-close').on('click', function(e){ 
+	e.preventDefault();
+    $(this).closest('.modal').removeClass('-show');
+  });
+  
+  $confirmBtn.on('click', function(e){
+	e.preventDefault();
+    
+    var checkboxes   = $termsForm.find('input[type="checkbox"]'),
+        confirmed    = $termsForm.find('input[type="checkbox"]:checked');
+    
+    if( checkboxes.length == confirmed.length ) {
+		$checkoutBtn.click();
+    } else {
+		$termsError.addClass('-show');
+    }
+    
+  });
+  
+  $('.modal-content').on('click', function(e){
+	e.stopPropagation();
+  });
+  
+  $('.modal').on('click', function(e){
+	e.preventDefault();
+    $(this).removeClass('-show');
+  });
+  		
+    $('.bank-info-link').click( function() {
+    	$('.bank-info').slideToggle();
+  });
+  
+
+});
+

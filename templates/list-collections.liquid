@@ -1,0 +1,41 @@
+{%- comment %}<locksmith:1eb4>{% endcomment -%}
+  {%- assign locksmith_cf01_forloop__size = 0 %}{% for collection in collections %}{% include 'locksmith-variables', locksmith_scope: 'subject', locksmith_subject: collection %}{% if locksmith_transparent %}{% assign locksmith_cf01_forloop__size = locksmith_cf01_forloop__size | plus: 1 %}{% endif %}{% endfor %}{% assign locksmith_cf01_forloop__index = nil -%}
+{%- comment %}</locksmith:1eb4>{% endcomment -%}
+{% for collection in collections %}
+  {%- comment %}<locksmith:c039>{% endcomment -%}
+    {%- include 'locksmith-variables', locksmith_scope: 'subject', locksmith_subject: collection %}{% if locksmith_transparent %}{% if locksmith_cf01_forloop__index == nil %}{% assign locksmith_cf01_forloop__index = 1 %}{% assign locksmith_cf01_forloop__index0 = 0 %}{% else %}{% assign locksmith_cf01_forloop__index = locksmith_cf01_forloop__index | plus: 1 %}{% assign locksmith_cf01_forloop__index0 = locksmith_cf01_forloop__index0 | plus: 1 %}{% endif %}{% if locksmith_cf01_forloop__index == 1 %}{% assign locksmith_cf01_forloop__first = true %}{% else %}{% assign locksmith_cf01_forloop__first = false %}{% endif %}{% if locksmith_cf01_forloop__index == locksmith_cf01_forloop__size %}{% assign locksmith_cf01_forloop__last = true %}{% else %}{% assign locksmith_cf01_forloop__last = false %}{% endif %}{% assign locksmith_cf01_forloop__rindex = locksmith_cf01_forloop__size | minus: locksmith_cf01_forloop__index | minus: 1 %}{% assign locksmith_cf01_forloop__rindex0 = locksmith_cf01_forloop__size | minus: locksmith_cf01_forloop__index0 | minus: 1 %}{% else %}{% continue %}{% endif -%}
+  {%- comment %}</locksmith:c039>{% endcomment -%}
+  {% unless collection.handle == 'frontpage' %}
+
+  <div class="grid grid--no-gutters grid--uniform collection">
+    <div class="grid__item small--one-half medium-up--one-fifth">
+      {% if collection.image %}
+        {% assign collection_image = collection | img_url: 'large' %}
+      {% else %}
+        {% assign collection_image = collection.products.first | img_url: 'large' %}
+      {% endif %}
+      <a href="{{ collection.url }}" class="collection-card" style="background-image: url({{ collection_image }});">
+        <div class="collection-card__meta">
+          <p class="h1 collection-card__title">{{ collection.title }}</p>
+          <p class="collection-card__subtext">{{ 'collections.general.view_all' | t }}</p>
+        </div>
+      </a>
+    </div>
+    {%- comment %}<locksmith:8148>{% endcomment -%}
+      {%- assign locksmith_f303_forloop__size = 0 %}{% for product in collection.products limit: 4 %}{% include 'locksmith-variables', locksmith_scope: 'subject', locksmith_subject: product %}{% if locksmith_transparent %}{% assign locksmith_f303_forloop__size = locksmith_f303_forloop__size | plus: 1 %}{% endif %}{% endfor %}{% assign locksmith_f303_forloop__index = nil -%}
+    {%- comment %}</locksmith:8148>{% endcomment -%}
+    {% for product in collection.products limit: 4 %}
+      {%- comment %}<locksmith:e760>{% endcomment -%}
+        {%- include 'locksmith-variables', locksmith_scope: 'subject', locksmith_subject: product, locksmith_subject_parent: collection %}{% if locksmith_transparent %}{% if locksmith_f303_forloop__index == nil %}{% assign locksmith_f303_forloop__index = 1 %}{% assign locksmith_f303_forloop__index0 = 0 %}{% else %}{% assign locksmith_f303_forloop__index = locksmith_f303_forloop__index | plus: 1 %}{% assign locksmith_f303_forloop__index0 = locksmith_f303_forloop__index0 | plus: 1 %}{% endif %}{% if locksmith_f303_forloop__index == 1 %}{% assign locksmith_f303_forloop__first = true %}{% else %}{% assign locksmith_f303_forloop__first = false %}{% endif %}{% if locksmith_f303_forloop__index == locksmith_f303_forloop__size %}{% assign locksmith_f303_forloop__last = true %}{% else %}{% assign locksmith_f303_forloop__last = false %}{% endif %}{% assign locksmith_f303_forloop__rindex = locksmith_f303_forloop__size | minus: locksmith_f303_forloop__index | minus: 1 %}{% assign locksmith_f303_forloop__rindex0 = locksmith_f303_forloop__size | minus: locksmith_f303_forloop__index0 | minus: 1 %}{% else %}{% continue %}{% endif -%}
+      {%- comment %}</locksmith:e760>{% endcomment -%}
+      {% comment %}
+        Hide the last product for a better mobile view
+      {% endcomment %}
+      <div class="grid__item small--one-half medium---one-third large--one-fifth{% if locksmith_f303_forloop__index == 4 %} small--hide{% endif %}">
+        {% include 'product-card', product: product %}
+      </div>
+    {% endfor %}
+  </div>
+
+  {% endunless %}
+{% endfor %}

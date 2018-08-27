@@ -1,0 +1,16 @@
+{% assign sizesArray = sizes | split: ' ' %}
+
+<img class="img--srcset{% if img_class %} {{ img_class }}{% endif %}"
+  sizes="
+    (max-width: 749px) {{ sizesArray[0] }},
+    (max-width: 1180px) {{ sizesArray[1] }},
+    {{ sizesArray[2] }}"
+  srcset="
+    {{ img_src | img_url: 'small' }} 160w,
+    {{ img_src | img_url: 'medium' }} 240w,
+    {{ img_src | img_url: 'large' }} 480w,
+    {{ img_src | img_url: 'grande' }} 600w,
+    {{ img_src | img_url: '1024x1024' }} 1024w,
+    {{ img_src | img_url: 'master' }} 2048w"
+ alt="{{ img_alt | escape }}"
+>
